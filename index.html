@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Resumo semanal · protótipo</title>
+<meta name="description" content="Protótipo para teste com usuários: resumo semanal dos dados do relógio, em linguagem simples.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap">
+<style>
+:root{--teal:#0E7A6B;--teal-esc:#0B5F53;--navy:#0F3153;--verde:#DCEFE8;--rosa:#F7DCE0;--cinza:#4A5868;--linha:#D5DEE6;--neutro:#EEF2F5;--vermelho:#A3263A}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:'Figtree',system-ui,-apple-system,'Segoe UI',sans-serif;color:var(--navy);background:#FFFFFF;-webkit-font-smoothing:antialiased}
+button,textarea{font-family:inherit}
+button{cursor:pointer}
+button:focus-visible,textarea:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+button:disabled{cursor:not-allowed}
+h1,h2,h3,p{margin:0}
+ul{list-style:none;margin:0;padding:0}
+
+.fundo{width:100%;height:100vh;height:100dvh;display:flex;justify-content:center;align-items:center;background:#FFFFFF}
+.app{position:relative;overflow:hidden;display:flex;flex-direction:column;width:100%;max-width:440px;height:100%;background:#FFFFFF}
+@media (min-width:600px) and (min-height:640px){.fundo{background:#E6EDF1;padding:24px}.app{max-height:900px;border-radius:28px;box-shadow:0 20px 60px rgba(15,49,83,.18)}}
+
+.faixa{flex:none;background:var(--navy);color:#fff;font-size:12px;font-weight:600;letter-spacing:.02em;text-align:center;padding:8px 16px;padding-top:calc(8px + env(safe-area-inset-top))}
+.tela{flex:1;min-height:0;overflow-y:auto;padding:16px 20px;padding-bottom:calc(32px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:22px;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.tela.topo{padding-top:32px}
+
+.eyebrow{font-size:15px;font-weight:600;color:var(--teal-esc)}
+.h1{font-size:28px;line-height:1.15;font-weight:800}
+.h1.m{font-size:26px;line-height:1.2}
+.lead{font-size:16px;line-height:1.5;color:var(--cinza)}
+.pilha{display:flex;flex-direction:column;gap:8px}
+.rotulo{font-size:14px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--cinza)}
+
+.btn{min-height:56px;border-radius:16px;border:0;background:var(--teal);color:#fff;font-size:17px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;padding:0 16px}
+.btn.navy{background:var(--navy)}
+.btn.contorno{background:#fff;color:var(--navy);border:1.5px solid var(--navy);min-height:52px;font-size:16px}
+.btn.md{min-height:48px;border-radius:14px;font-size:16px}
+.voltar{width:44px;height:44px;border-radius:999px;border:1.5px solid var(--linha);background:#fff;color:var(--navy);display:flex;align-items:center;justify-content:center;padding:0;flex:none}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:var(--verde);color:var(--teal-esc);font-size:13px;font-weight:700}
+.linkbtn{align-self:flex-start;min-height:44px;padding:0;border:0;background:none;color:var(--cinza);font-size:15px;font-weight:600;text-decoration:underline;text-underline-offset:3px}
+
+/* marcas */
+.marca{border:1.5px solid var(--linha);border-radius:18px;padding:14px 14px 14px 16px;display:flex;flex-direction:column;gap:8px}
+.marca-linha{display:flex;align-items:center;gap:14px}
+.icone{flex:none;width:48px;height:48px;border-radius:12px;background:var(--verde);color:var(--teal-esc);display:flex;align-items:center;justify-content:center}
+.icone.logo{background:#fff;border:1px solid var(--linha);padding:6px}
+.icone.logo img{max-width:100%;max-height:100%;object-fit:contain}
+.marca-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.marca-nome{font-size:17px;font-weight:700}
+.marca-tipo{font-size:13px;color:var(--cinza)}
+.pilula{flex:none;display:flex;align-items:center;gap:6px;min-height:44px;padding:0 18px;border-radius:999px;border:0;font-size:15px;font-weight:700}
+.pilula.conectar{background:var(--teal);color:#fff}
+.pilula.ok{background:var(--verde);color:var(--teal-esc);padding:0 14px}
+.pilula.breve{background:var(--neutro);color:var(--cinza);padding:0 14px}
+.aviso-linha{display:flex;align-items:center;gap:6px;font-size:14px;line-height:1.4;color:var(--teal-esc);font-weight:600}
+
+/* resumo */
+.cartao{border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:12px}
+.cartao-topo{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.cartao h3{font-size:17px;line-height:1.3;font-weight:700}
+.selo{flex:none;padding:4px 10px;border-radius:999px;background:#fff;font-size:12px;font-weight:700}
+.valores{display:flex;align-items:center;gap:14px}
+.valor{display:flex;align-items:baseline;gap:6px}
+.valor b{font-size:36px;line-height:1;font-weight:800}
+.valor span{font-size:15px;font-weight:600;color:var(--cinza)}
+.direcao{display:flex;align-items:center;gap:4px;font-size:14px;font-weight:700}
+.anterior{font-size:14px;color:var(--cinza)}
+.texto{font-size:16px;line-height:1.5}
+.porque-btn{align-self:flex-start;min-height:44px;padding:0 16px;border-radius:999px;border:1.5px solid var(--teal-esc);background:#fff;color:var(--teal-esc);font-size:15px;font-weight:700;display:flex;align-items:center;gap:6px}
+.porque-btn svg{transition:transform .2s}
+.porque-btn[aria-expanded="true"] svg{transform:rotate(180deg)}
+.porque{background:#fff;border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.porque small{font-size:13px;font-weight:700;color:var(--teal-esc)}
+.porque p{font-size:15px;line-height:1.55}
+.termo{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;text-decoration:underline;text-decoration-color:var(--teal);text-decoration-thickness:2px;text-underline-offset:3px;cursor:pointer;text-align:left}
+.acao{background:var(--teal);color:#fff;border-radius:22px;padding:20px;display:flex;flex-direction:column;gap:10px}
+.acao-topo{display:flex;align-items:center;gap:10px}
+.acao-ico{width:36px;height:36px;border-radius:999px;background:#fff;color:var(--teal);display:flex;align-items:center;justify-content:center;flex:none}
+.acao h2{font-size:18px;font-weight:800}
+.acao p{font-size:17px;line-height:1.5;font-weight:500}
+.acao .termo{text-decoration-color:#fff}
+.outras{border-top:1px solid var(--linha)}
+.outras li{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:12px 0;border-bottom:1px solid var(--linha);font-size:15px}
+.outras .nome{font-weight:600}
+.outras .dir{display:flex;flex-direction:column;align-items:flex-end;gap:2px;text-align:right}
+.outras .dir b{font-weight:700}
+.outras .dir span{color:var(--cinza);font-size:13px}
+
+/* feedback */
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+legend{padding:0;margin:0 0 12px;font-size:18px;line-height:1.35;font-weight:700}
+.opcoes{display:flex;flex-wrap:wrap;gap:8px}
+.opcao{min-height:48px;padding:0 22px;border-radius:999px;border:1.5px solid #7D8FA0;background:#fff;color:var(--navy);font-size:16px;font-weight:700}
+.opcao[aria-pressed="true"]{background:var(--teal);border-color:var(--teal);color:#fff}
+label.campo{font-size:18px;font-weight:700}
+label.campo span{font-size:14px;font-weight:500;color:var(--cinza)}
+textarea{width:100%;resize:vertical;border:1.5px solid #7D8FA0;border-radius:14px;padding:12px 14px;font-size:16px;line-height:1.45;color:var(--navy);background:#fff}
+.dica{font-size:14px;color:var(--cinza);text-align:center}
+.btn:disabled{opacity:.45}
+
+/* agradecimento */
+.ok-ico{width:56px;height:56px;border-radius:999px;background:var(--verde);color:var(--teal-esc);display:flex;align-items:center;justify-content:center}
+.bloco{border:1.5px solid var(--linha);border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.bloco.cinza{background:var(--neutro);border-color:var(--neutro)}
+.resp{display:flex;flex-direction:column;gap:4px}
+.resp span{font-size:14px;color:var(--cinza)}
+.resp b{font-size:16px;line-height:1.4;font-weight:700;white-space:pre-line}
+
+/* painéis */
+.veu{position:absolute;inset:0;border:0;padding:0;background:rgba(15,49,83,.4)}
+.painel{position:absolute;left:16px;right:16px;bottom:calc(24px + env(safe-area-inset-bottom));max-height:calc(100% - 72px);overflow-y:auto;background:#fff;border-radius:22px;padding:20px;display:flex;flex-direction:column;gap:12px;box-shadow:0 12px 40px rgba(15,49,83,.25)}
+.painel .mini{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--teal-esc)}
+.painel h2{font-size:20px;line-height:1.25;font-weight:800}
+.painel p{font-size:16px;line-height:1.55}
+.painel .cinza{color:var(--cinza)}
+.dados li{display:flex;align-items:center;gap:10px;font-size:15px;line-height:1.35;padding:4px 0}
+.dados li::before{content:"";flex:none;width:8px;height:8px;border-radius:999px;background:var(--teal)}
+.aviso-btn{min-height:48px;border-radius:14px;border:1.5px solid var(--teal-esc);background:#fff;color:var(--teal-esc);font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px}
+.aviso-btn[aria-pressed="true"]{background:var(--verde)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+</style>
+</head>
+<body>
+<div class="fundo"><div class="app" id="app"></div></div>
+
+<script>
+/* =========================================================
+   DADOS DO TESTE · edite só este objeto para cada atleta.
+   Termos do glossário no texto: [[id|texto que aparece]]
+   ========================================================= */
+const DADOS = {
+  atleta: 'Rafael',
+  periodo: '13 a 19 de outubro',
+  marcaDisponivel: 'Garmin',
+  // icone: 'relogio' | 'pulseira' | 'anel'  ·  logo: endereço de imagem oficial (opcional)
+  marcas: [
+    { nome: 'Garmin', tipo: 'Relógio', icone: 'relogio', logo: '' },
+    { nome: 'Coros', tipo: 'Relógio', icone: 'relogio', logo: '',
+      dados: ['Corridas e distância da semana', 'Frequência cardíaca de repouso', 'Variabilidade cardíaca', 'Sono'] },
+    { nome: 'Whoop', tipo: 'Pulseira', icone: 'pulseira', logo: '',
+      dados: ['Recuperação do dia', 'Esforço acumulado', 'Variabilidade cardíaca', 'Sono'] },
+    { nome: 'Oura', tipo: 'Anel', icone: 'anel', logo: '',
+      dados: ['Sono', 'Prontidão para treinar', 'Frequência cardíaca de repouso', 'Temperatura do corpo'] }
+  ],
+  fraseResumo: 'Você correu mais que na semana passada, mas dormiu menos. Seu corpo deu sinais de cansaço: hora de pegar leve no próximo treino.',
+
+  // melhorQuando: 'menor' ou 'maior' (define se a mudança é melhora ou piora)
+  metricas: {
+    corridas:     { nome: 'Corridas', atual: '4', anterior: null, unidade: '' },
+    distancia:    { nome: 'Distância total', atual: '28', anterior: '22', unidade: 'km', melhorQuando: 'maior' },
+    fcRepouso:    { nome: 'Frequência cardíaca de repouso', termo: 'fcr', atual: '56', anterior: '52', unidade: 'bpm', melhorQuando: 'menor' },
+    sono:         { nome: 'Sono médio', atual: '6h10', anterior: '7h05', unidade: 'por noite', melhorQuando: 'maior' },
+    vo2max:       { nome: 'VO₂ máx', termo: 'vo2', atual: '47', anterior: '48', unidade: '', melhorQuando: 'maior' },
+    vfc:          { nome: 'Variabilidade cardíaca média', termo: 'vfc', atual: '42', anterior: '50', unidade: 'ms', melhorQuando: 'maior' },
+    statusTreino: { nome: 'Status de treino', termo: 'status', atual: 'Improdutivo', anterior: null, unidade: '' }
+  },
+
+  // Os 3 indicadores do resumo (os demais vão para "Ver outras métricas")
+  destaques: [
+    { metrica: 'fcRepouso',
+      significado: 'Seu coração está batendo mais rápido mesmo parado. Isso costuma indicar que o corpo ainda não se recuperou dos treinos.',
+      porque: 'Você subiu de 22 para 28 km em uma semana e dormiu menos. Com pouca recuperação, o coração trabalha mais até em repouso. Sua [[vfc|variabilidade cardíaca]] também caiu, de 50 para 42 ms, outro sinal de cansaço. Por isso sugerimos trocar o treino forte por um leve.' },
+    { metrica: 'sono',
+      significado: 'Você dormiu quase 1 hora a menos por noite. É dormindo que o corpo se recupera do treino.',
+      porque: 'Menos sono deixa menos tempo para músculos e coração se recuperarem. Dormir pelo menos 7 horas antes dos treinos ajuda sua [[fcr|frequência cardíaca de repouso]] a voltar ao normal.' },
+    { metrica: 'vo2max',
+      significado: 'Caiu 1 ponto. É uma variação pequena: não quer dizer que você perdeu condicionamento.',
+      porque: 'O VO₂ máx costuma oscilar quando você está cansado ou dormiu mal. Foi isso que levou o relógio a mostrar o [[status|status de treino]] “improdutivo”: ele viu mais esforço sem ganho de condicionamento. Com uma semana mais leve, a tendência é o número voltar.' }
+  ],
+
+  acao: 'Troque o treino intervalado de quarta por 40 minutos leves e tente dormir pelo menos 7 horas nas noites antes dos treinos.',
+
+  glossario: {
+    vo2:    { titulo: 'VO₂ máx', definicao: 'É a quantidade máxima de oxigênio que seu corpo consegue usar durante o exercício. Quanto maior, mais preparados estão seu coração e seus pulmões para esforços longos. O relógio estima esse número a partir das suas corridas.' },
+    fcr:    { titulo: 'Frequência cardíaca de repouso', definicao: 'Quantas vezes seu coração bate por minuto quando você está parado, geralmente medida durante o sono. Quando sobe alguns batimentos, pode ser sinal de cansaço, sono ruim ou estresse.' },
+    vfc:    { titulo: 'Variabilidade cardíaca', definicao: 'É a pequena diferença de tempo entre um batimento e outro. Valores mais altos costumam indicar um corpo descansado. Quando cai, o corpo pode estar cansado ou estressado.' },
+    status: { titulo: 'Status de treino', definicao: 'É uma avaliação automática do relógio que compara quanto você treinou com como seu condicionamento respondeu. “Improdutivo” quer dizer que você treinou, mas o relógio não viu melhora, muitas vezes por falta de recuperação.' }
+  }
+};
+
+/* ================= ícones ================= */
+const svg = (d, s = 20, w = 2.5) => `<svg aria-hidden="true" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+const ICO = {
+  relogio: svg('<rect x="6" y="6" width="12" height="12" rx="3"/><path d="M9 6l1-3h4l1 3M9 18l1 3h4l1-3M12 10v2l1.5 1"/>', 24, 2),
+  pulseira: svg('<path d="M9 2v5M15 2v5M9 17v5M15 17v5"/><rect x="7" y="7" width="10" height="10" rx="2.5"/><path d="M10 12h4"/>', 24, 2),
+  anel: svg('<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="5"/>', 24, 2),
+  check: (s = 18) => svg('<path d="M5 12.5l4.5 4.5L19 7.5"/>', s, 3),
+  voltar: svg('<path d="M19 12H5M11 6l-6 6 6 6"/>'),
+  seguir: svg('<path d="M5 12h14M13 6l6 6-6 6"/>'),
+  chevron: svg('<path d="M9 6l6 6-6 6"/>', 16),
+  abaixo: svg('<path d="M6 9l6 6 6-6"/>', 16, 2.75),
+  sobe: svg('<path d="M12 19V5M5 12l7-7 7 7"/>', 24, 2.75),
+  desce: svg('<path d="M12 5v14M5 12l7 7 7-7"/>', 24, 2.75),
+  sino: (s = 16) => svg('<path d="M6 16v-5a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>', s, 2.25),
+  corredor: svg('<circle cx="13" cy="4.5" r="2"/><path d="M7 21l3-6 3 2v5M10 15l1-6 4 3 3 1M11 9L7 11v3"/>')
+};
+
+/* ================= utilidades ================= */
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function paraNumero(v) {
+  if (v === null || v === undefined) return null;
+  const s = String(v).trim();
+  const h = s.match(/^(\d+)\s*h\s*(\d{1,2})?$/i);
+  if (h) return Number(h[1]) * 60 + Number(h[2] || 0);
+  const n = parseFloat(s.replace(',', '.'));
+  return isNaN(n) ? null : n;
+}
+const comUnidade = (v, u) => (v === null || v === undefined ? '—' : u ? v + ' ' + u : String(v));
+function comTermos(texto) {
+  return esc(texto).replace(/\[\[(\w+)\|([^\]]+)\]\]/g, (_, id, t) => `<button type="button" class="termo" data-acao="termo" data-id="${id}">${t}</button>`);
+}
+const nomeMetrica = (m) => (m.termo ? `<button type="button" class="termo" data-acao="termo" data-id="${m.termo}">${esc(m.nome)}</button>` : esc(m.nome));
+const iconeMarca = (m) => (m.logo ? `<span class="icone logo"><img src="${esc(m.logo)}" alt="Logo ${esc(m.nome)}"></span>` : `<span class="icone">${ICO[m.icone] || ICO.relogio}</span>`);
+
+/* ================= estado (só em memória) ================= */
+const inicial = () => ({ tela: 'conectar', conectado: false, emBreve: [], marcaAberta: null, avisos: [], porque: {}, termo: null, outras: false, ajudou: null, mudar: null, confusao: '', porquesVistos: [], termosVistos: [], viuOutras: false });
+let E = inicial();
+const add = (lista, x) => (lista.includes(x) ? lista : lista.concat([x]));
+
+/* ================= telas ================= */
+function telaConectar() {
+  const linhas = DADOS.marcas.map((m) => {
+    const disp = m.nome === DADOS.marcaDisponivel;
+    const ok = disp && E.conectado;
+    const breve = !disp && E.emBreve.includes(m.nome);
+    let direita = `<button type="button" class="pilula conectar" data-acao="conectar" data-nome="${esc(m.nome)}" aria-label="Conectar ${esc(m.nome)}">Conectar</button>`;
+    if (ok) direita = `<span class="pilula ok" role="status">${ICO.check()}Conectado</span>`;
+    if (breve) direita = `<button type="button" class="pilula breve" data-acao="conectar" data-nome="${esc(m.nome)}" aria-label="${esc(m.nome)}: em breve. Ver detalhes">Em breve${ICO.chevron}</button>`;
+    const aviso = E.avisos.includes(m.nome) ? `<p class="aviso-linha" role="status">${ICO.sino()}Vamos te avisar quando o ${esc(m.nome)} chegar.</p>` : '';
+    return `<li class="marca"><div class="marca-linha">${iconeMarca(m)}<div class="marca-txt"><span class="marca-nome">${esc(m.nome)}</span><span class="marca-tipo">${esc(m.tipo)}</span></div>${direita}</div>${aviso}</li>`;
+  }).join('');
+  return `<main class="tela topo">
+    <div class="pilha">
+      <p class="eyebrow">Olá, ${esc(DADOS.atleta)}</p>
+      <h1 class="h1">Conecte seu relógio</h1>
+      <p class="lead">Vamos ler os dados da sua semana e explicar, em linguagem simples, o que eles significam.</p>
+    </div>
+    <ul class="pilha" style="gap:12px">${linhas}</ul>
+    ${E.conectado ? `<button type="button" class="btn" data-acao="ir" data-tela="resumo">Ver meu resumo da semana${ICO.seguir}</button>` : ''}
+  </main>`;
+}
+
+function telaResumo() {
+  const ids = DADOS.destaques.map((d) => d.metrica);
+  const cartoes = DADOS.destaques.map((d) => {
+    const m = DADOS.metricas[d.metrica] || {};
+    const a = paraNumero(m.atual), b = paraNumero(m.anterior);
+    const subiu = a !== null && b !== null && a > b;
+    const caiu = a !== null && b !== null && a < b;
+    const piorou = m.melhorQuando === 'menor' ? subiu : m.melhorQuando === 'maior' ? caiu : false;
+    const melhorou = (subiu || caiu) && !piorou;
+    const fundo = piorou ? 'var(--rosa)' : melhorou ? 'var(--verde)' : 'var(--neutro)';
+    const cor = piorou ? 'var(--vermelho)' : 'var(--teal-esc)';
+    const aberto = !!E.porque[d.metrica];
+    return `<article class="cartao" style="background:${fundo}">
+      <div class="cartao-topo"><h3>${nomeMetrica(m)}</h3><span class="selo" style="color:${cor}">${piorou ? 'Pede atenção' : melhorou ? 'Bom sinal' : 'Estável'}</span></div>
+      <div class="valores"><div class="valor"><b>${esc(m.atual)}</b><span>${esc(m.unidade || '')}</span></div>
+        <span class="direcao" style="color:${cor}">${subiu ? ICO.sobe : caiu ? ICO.desce : ''}<span>${subiu ? 'Subiu' : caiu ? 'Caiu' : 'Igual'}</span></span></div>
+      <p class="anterior">Semana anterior: ${esc(comUnidade(m.anterior, m.unidade))}</p>
+      <p class="texto">${comTermos(d.significado)}</p>
+      <button type="button" class="porque-btn" data-acao="porque" data-id="${d.metrica}" aria-expanded="${aberto}">${aberto ? 'Fechar' : 'Por quê?'}${ICO.abaixo}</button>
+      ${aberto ? `<div class="porque"><small>Por que recomendamos isso</small><p>${comTermos(d.porque)}</p></div>` : ''}
+    </article>`;
+  }).join('');
+  const outras = Object.keys(DADOS.metricas).filter((id) => !ids.includes(id)).map((id) => {
+    const m = DADOS.metricas[id];
+    const ant = m.anterior !== null && m.anterior !== undefined ? `<span>anterior: ${esc(comUnidade(m.anterior, m.unidade))}</span>` : '';
+    return `<li><span class="nome">${nomeMetrica(m)}</span><span class="dir"><b>${esc(comUnidade(m.atual, m.unidade))}</b>${ant}</span></li>`;
+  }).join('');
+  return `<main class="tela">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+      <button type="button" class="voltar" data-acao="ir" data-tela="conectar" aria-label="Voltar para conexões">${ICO.voltar}</button>
+      <span class="chip">${ICO.check(14)}${esc(DADOS.marcaDisponivel)} conectado</span>
+    </div>
+    <header class="pilha" style="gap:10px">
+      <h1 class="h1 m">Sua semana · ${esc(DADOS.periodo)}</h1>
+      <p class="texto" style="font-size:17px">${comTermos(DADOS.fraseResumo)}</p>
+    </header>
+    <section class="pilha" style="gap:14px">
+      <h2 class="rotulo">O que mais mudou</h2>
+      ${cartoes}
+    </section>
+    <section class="acao" aria-labelledby="titulo-acao">
+      <div class="acao-topo"><span class="acao-ico">${ICO.corredor}</span><h2 id="titulo-acao">Sua ação para o próximo treino</h2></div>
+      <p>${comTermos(DADOS.acao)}</p>
+    </section>
+    <div class="pilha" style="gap:10px">
+      <button type="button" class="linkbtn" data-acao="outras" aria-expanded="${E.outras}">${E.outras ? 'Ocultar outras métricas' : 'Ver outras métricas da semana'}</button>
+      ${E.outras ? `<ul class="outras">${outras}</ul>` : ''}
+    </div>
+    <button type="button" class="btn navy" data-acao="ir" data-tela="feedback">Avaliar este resumo</button>
+  </main>`;
+}
+
+function telaFeedback() {
+  const op = (grupo, valor) => `<button type="button" class="opcao" data-acao="opcao" data-grupo="${grupo}" data-valor="${valor}" aria-pressed="${E[grupo] === valor}">${valor}</button>`;
+  const pode = E.ajudou && E.mudar;
+  return `<main class="tela" style="gap:26px">
+    <button type="button" class="voltar" data-acao="ir" data-tela="resumo" aria-label="Voltar para o resumo">${ICO.voltar}</button>
+    <div class="pilha"><h1 class="h1 m">Sua opinião</h1><p class="lead">Leva menos de um minuto.</p></div>
+    <fieldset><legend>Esse resumo ajudou?</legend><div class="opcoes">${op('ajudou', 'Sim')}${op('ajudou', 'Mais ou menos')}${op('ajudou', 'Não')}</div></fieldset>
+    <fieldset><legend>Você vai mudar algo no seu próximo treino por causa dele?</legend><div class="opcoes">${op('mudar', 'Sim')}${op('mudar', 'Não')}</div></fieldset>
+    <div class="pilha"><label class="campo" for="confuso">O que ficou confuso? <span>(opcional)</span></label>
+      <textarea id="confuso" rows="4" placeholder="Escreva com suas palavras">${esc(E.confusao)}</textarea></div>
+    <div class="pilha">
+      <button type="button" class="btn" data-acao="enviar" ${pode ? '' : 'disabled'}>Enviar</button>
+      ${pode ? '' : '<p class="dica">Responda as duas perguntas para enviar.</p>'}
+    </div>
+  </main>`;
+}
+
+function telaObrigado() {
+  const lista = (itens) => itens.map(([p, r]) => `<div class="resp"><span>${esc(p)}</span><b>${esc(r)}</b></div>`).join('');
+  const nomes = (ids, fonte, campo) => ids.map((id) => (fonte[id] || {})[campo]).filter(Boolean);
+  const porques = nomes(E.porquesVistos, DADOS.metricas, 'nome');
+  const termos = nomes(E.termosVistos, DADOS.glossario, 'titulo');
+  return `<main class="tela topo">
+    <div class="pilha" style="gap:12px">
+      <span class="ok-ico">${ICO.check(28)}</span>
+      <h1 class="h1">Obrigado, ${esc(DADOS.atleta)}!</h1>
+      <p class="lead">Suas respostas ajudam a deixar o resumo mais claro.</p>
+    </div>
+    <section class="bloco"><h2 class="rotulo">Respostas</h2>${lista([
+      ['Esse resumo ajudou?', E.ajudou || '—'],
+      ['Vai mudar algo no próximo treino por causa dele?', E.mudar || '—'],
+      ['O que ficou confuso?', E.confusao.trim() || 'Não respondeu']
+    ])}</section>
+    <section class="bloco cinza"><h2 class="rotulo">Durante o teste</h2>${lista([
+      ['Tocou em outras marcas', E.emBreve.join(', ') || 'Nenhuma'],
+      ['Pediu aviso de', E.avisos.join(', ') || 'Nenhuma'],
+      ['Abriu o “Por quê?” em', porques.join(', ') || 'Nenhum cartão'],
+      ['Consultou no glossário', termos.join(', ') || 'Nenhum termo'],
+      ['Abriu “Ver outras métricas”', E.viuOutras ? 'Sim' : 'Não']
+    ])}</section>
+    <button type="button" class="btn contorno" data-acao="reiniciar">Reiniciar para o próximo participante</button>
+  </main>`;
+}
+
+function painelGlossario() {
+  const g = DADOS.glossario[E.termo];
+  if (!g) return '';
+  return `<button type="button" class="veu" data-acao="fechar" aria-label="Fechar glossário"></button>
+  <div class="painel" role="dialog" aria-modal="true" aria-labelledby="titulo-glossario">
+    <span class="mini">Glossário</span>
+    <h2 id="titulo-glossario">${esc(g.titulo)}</h2>
+    <p>${esc(g.definicao)}</p>
+    <button type="button" class="btn md" data-acao="fechar" data-foco>Entendi</button>
+  </div>`;
+}
+
+function painelMarca() {
+  const m = DADOS.marcas.find((x) => x.nome === E.marcaAberta);
+  if (!m) return '';
+  const aviso = E.avisos.includes(m.nome);
+  const dados = (m.dados || []).map((t) => `<li>${esc(t)}</li>`).join('');
+  return `<button type="button" class="veu" data-acao="fechar" aria-label="Fechar"></button>
+  <div class="painel" role="dialog" aria-modal="true" aria-labelledby="titulo-marca">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">${iconeMarca(m)}<span class="pilula breve" style="min-height:0;padding:4px 10px;font-size:12px">Em breve</span></div>
+    <h2 id="titulo-marca">O ${esc(m.nome)} chega em breve</h2>
+    <p class="cinza">Ainda estamos preparando a conexão com o ${esc(m.nome)}. Por enquanto, o resumo funciona com ${esc(DADOS.marcaDisponivel)}.</p>
+    <div class="pilha"><span class="mini" style="text-transform:none;letter-spacing:0;font-size:13px">Quando chegar, o resumo vai usar:</span><ul class="dados">${dados}</ul></div>
+    <button type="button" class="aviso-btn" data-acao="aviso" data-nome="${esc(m.nome)}" aria-pressed="${aviso}">${ICO.sino(18)}${aviso ? 'Aviso ativado' : 'Me avise quando chegar'}</button>
+    ${E.conectado
+      ? `<button type="button" class="btn md" data-acao="ir" data-tela="resumo">Ver meu resumo da semana</button>`
+      : `<button type="button" class="btn md" data-acao="conectar" data-nome="${esc(DADOS.marcaDisponivel)}">Conectar meu ${esc(DADOS.marcaDisponivel)}</button>`}
+    <button type="button" class="linkbtn" style="align-self:center" data-acao="fechar" data-foco>Voltar para a lista</button>
+  </div>`;
+}
+
+/* ================= desenho ================= */
+const app = document.getElementById('app');
+let telaAnterior = null;
+function desenhar() {
+  const rolagem = app.querySelector('.tela');
+  const topo = rolagem && telaAnterior === E.tela ? rolagem.scrollTop : 0;
+  const telas = { conectar: telaConectar, resumo: telaResumo, feedback: telaFeedback, obrigado: telaObrigado };
+  app.innerHTML = `<div class="faixa">Protótipo para teste · dados de exemplo</div>${telas[E.tela]()}${E.termo ? painelGlossario() : ''}${E.marcaAberta ? painelMarca() : ''}`;
+  const nova = app.querySelector('.tela');
+  if (nova) nova.scrollTop = topo;
+  const foco = app.querySelector('.painel [data-foco]');
+  if (foco) foco.focus({ preventScroll: true });
+  telaAnterior = E.tela;
+  document.title = { conectar: 'Conecte seu relógio', resumo: 'Sua semana', feedback: 'Sua opinião', obrigado: 'Obrigado' }[E.tela] + ' · protótipo';
+}
+
+app.addEventListener('click', (ev) => {
+  const el = ev.target.closest('[data-acao]');
+  if (!el || el.disabled) return;
+  const d = el.dataset;
+  switch (d.acao) {
+    case 'conectar':
+      if (d.nome === DADOS.marcaDisponivel) E = { ...E, conectado: true, marcaAberta: null };
+      else E = { ...E, emBreve: add(E.emBreve, d.nome), marcaAberta: d.nome };
+      break;
+    case 'aviso':
+      E = { ...E, avisos: E.avisos.includes(d.nome) ? E.avisos.filter((x) => x !== d.nome) : E.avisos.concat([d.nome]) };
+      break;
+    case 'ir': E = { ...E, tela: d.tela, termo: null, marcaAberta: null }; break;
+    case 'porque': {
+      const aberto = !E.porque[d.id];
+      E = { ...E, porque: { ...E.porque, [d.id]: aberto }, porquesVistos: aberto ? add(E.porquesVistos, d.id) : E.porquesVistos };
+      break;
+    }
+    case 'termo': E = { ...E, termo: d.id, termosVistos: add(E.termosVistos, d.id) }; break;
+    case 'fechar': E = { ...E, termo: null, marcaAberta: null }; break;
+    case 'outras': E = { ...E, outras: !E.outras, viuOutras: E.viuOutras || !E.outras }; break;
+    case 'opcao': E = { ...E, [d.grupo]: d.valor }; break;
+    case 'enviar': if (E.ajudou && E.mudar) E = { ...E, tela: 'obrigado' }; break;
+    case 'reiniciar': E = inicial(); break;
+    default: return;
+  }
+  desenhar();
+});
+app.addEventListener('input', (ev) => { if (ev.target.id === 'confuso') E.confusao = ev.target.value; });
+document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape' && (E.termo || E.marcaAberta)) { E = { ...E, termo: null, marcaAberta: null }; desenhar(); } });
+
+desenhar();
+</script>
+</body>
+</html>
